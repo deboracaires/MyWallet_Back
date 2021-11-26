@@ -9,6 +9,15 @@ async function create(user, value, type, description) {
   return result.rows[0];
 }
 
+async function select(user) {
+  const events = await connection.query(
+    `SELECT * FROM "financialEvents" WHERE "userId"=$1 ORDER BY "id" DESC`,
+    [user.id],
+  );
+  return events;
+}
+
 export {
   create,
+  select,
 };

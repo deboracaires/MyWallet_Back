@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 import * as financialService from '../services/financialEventService.js';
-import * as financialRepository from '../repositories/financialEventsRepository.js';
+import * as financialEventsRepository from '../repositories/financialEventsRepository.js';
 
 async function postFinancialEvent(req, res) {
   try {
@@ -17,8 +17,20 @@ async function postFinancialEvent(req, res) {
     if (!typeValue) {
       return res.sendStatus(400);
     }
-    await financialRepository.create(user, value, type, description);
+    await financialEventsRepository.create(user, value, type, description);
     return res.sendStatus(201);
+  } catch (err) {
+    res.sendStatus(500);
+  }
+}
+
+async function getFinancialHistory(req, res) {
+  try {
+    const { user } = res.locals;
+
+    const history = await financialEventsRepository.select(user);
+
+    res.send(history.rows);
   } catch (err) {
     res.sendStatus(500);
   }
@@ -26,4 +38,5 @@ async function postFinancialEvent(req, res) {
 
 export {
   postFinancialEvent,
+  getFinancialHistory,
 };
