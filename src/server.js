@@ -1,6 +1,7 @@
 import './setup.js';
 import app from './app.js';
 
-app.listen(process.env.PORT, () => {
+const port = 4000;
 
+app.listen(port, () => {
 });

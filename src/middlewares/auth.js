@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
-import jwt from 'jsonwebtoken';
+import connection from '../database/database.js';
 
-export default function auth(req, res, next) {
+async function auth(req, res, next) {
   const authorization = req.headers.authorization || '';
   const token = authorization.split('Bearer ')[1];
 
@@ -9,13 +9,19 @@ export default function auth(req, res, next) {
     return res.sendStatus(401);
   }
 
-  let user;
-
   try {
-    user = jwt.verify(token, process.env.JWT_SECRET);
-    res.locals.user = user;
+    // eslint-disable-next-line quotes
+    const session = await connection.query(`SELECT * FROM sessions WHERE "token" = $1`, [token]);
+
+    if (session.rowCount === 0) {
+      return res.sendStatus(401);
+    }
     next();
   } catch {
     return res.sendStatus(401);
   }
 }
+
+export {
+  auth,
+};
