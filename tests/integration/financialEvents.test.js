@@ -5,6 +5,7 @@ import supertest from 'supertest';
 import faker from 'faker';
 
 import { createToken } from '../factories/userFactory.js';
+import { createFinancialEvent } from '../factories/financialEventFactory.js';
 import { clearDatabase, closeConnection } from '../utils/database.js';
 
 import app from '../../src/app.js';
@@ -66,5 +67,29 @@ describe('POST /financial-events', () => {
     const body = generateBody();
     const response = await supertest(app).post('/financial-events').send(body).set('Authorization', `Bearer ${token}`);
     expect(response.status).toEqual(201);
+  });
+});
+
+describe('GET /financial-events', () => {
+  it('should answer with status 401 when no token is given', async () => {
+    const response = await supertest(app).get('/financial-events-history');
+    expect(response.status).toEqual(401);
+  });
+  it('should answer with status 401 when invalid token is given', async () => {
+    const response = await supertest(app).get('/financial-events-history').set('Authorization', `Bearer ${'ata'}`);
+    expect(response.status).toEqual(401);
+  });
+  it('should answer with status 200 when token is valid and given', async () => {
+    const { token } = await createToken();
+
+    const response = await supertest(app).get('/financial-events-history').set('Authorization', `Bearer ${token}`);
+    expect(response.status).toEqual(200);
+  });
+  it('should answer with all financial events when token is valid and given', async () => {
+    const { user, token } = await createToken();
+    const event = await createFinancialEvent(user);
+    const response = await supertest(app).get('/financial-events-history').set('Authorization', `Bearer ${token}`);
+
+    expect(response.body).toEqual([event]);
   });
 });
