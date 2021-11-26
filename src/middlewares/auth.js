@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import jwt from 'jsonwebtoken';
 
-export default function authentication(req, res, next) {
+export default function auth(req, res, next) {
   const authorization = req.headers.authorization || '';
   const token = authorization.split('Bearer ')[1];
 
