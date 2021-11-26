@@ -1,27 +1,29 @@
 import bcrypt from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+import jwt from 'jsonwebtoken';
 import * as userRepository from '../repositories/userRepository.js';
-import * as sessionRepository from '../repositories/sessionRepository.js';
 
 async function authenticate(email, password) {
-  const user = userRepository.findByEmail(email);
-
+  const user = await userRepository.findByEmail(email);
   if (!user || !bcrypt.compareSync(password, user.password)) {
+    return { token: null, user: null };
+  }
+  const token = jwt.sign({
+    id: user.id,
+  }, `${process.env.JWT_SECRET}`);
+
+  return { token, user };
+}
+
+async function verifyEmail(email) {
+  const user = await userRepository.findByEmail(email);
+
+  if (!user) {
     return null;
   }
-
-  const token = uuid();
-  const verifySession = await sessionRepository.verify(user);
-  let session = [];
-  if (verifySession) {
-    session = await sessionRepository.update(user, token);
-  } else {
-    session = await sessionRepository.create(user, token);
-  }
-
-  return session;
+  return user;
 }
 
 export {
   authenticate,
+  verifyEmail,
 };
