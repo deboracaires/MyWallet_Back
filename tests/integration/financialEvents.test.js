@@ -70,7 +70,7 @@ describe('POST /financial-events', () => {
   });
 });
 
-describe('GET /financial-events', () => {
+describe('GET /financial-events-history', () => {
   it('should answer with status 401 when no token is given', async () => {
     const response = await supertest(app).get('/financial-events-history');
     expect(response.status).toEqual(401);
@@ -91,5 +91,32 @@ describe('GET /financial-events', () => {
     const response = await supertest(app).get('/financial-events-history').set('Authorization', `Bearer ${token}`);
 
     expect(response.body).toEqual([event]);
+  });
+});
+
+describe('GET /financial-events-sum', () => {
+  it('should answer with status 401 when no token is given', async () => {
+    const response = await supertest(app).get('/financial-events-sum');
+    expect(response.status).toEqual(401);
+  });
+  it('should answer with status 401 when invalid token is given', async () => {
+    const response = await supertest(app).get('/financial-events-sum').set('Authorization', `Bearer ${'ata'}`);
+    expect(response.status).toEqual(401);
+  });
+  it('should answer with status 200 when token is valid and given', async () => {
+    const { token } = await createToken();
+
+    const response = await supertest(app).get('/financial-events-sum').set('Authorization', `Bearer ${token}`);
+    expect(response.status).toEqual(200);
+  });
+  it('should answer with all financial events when token is valid and given', async () => {
+    const { user, token } = await createToken();
+
+    await createFinancialEvent(user, { value: 15, type: 'INCOME' });
+    await createFinancialEvent(user, { value: 5, type: 'OUTCOME' });
+
+    const response = await supertest(app).get('/financial-events-sum').set('Authorization', `Bearer ${token}`);
+
+    expect(response.body).toEqual({ sum: 10 });
   });
 });
