@@ -1,5 +1,9 @@
+/* eslint-disable no-tabs */
+/* eslint-disable no-mixed-spaces-and-tabs */
 import pg from 'pg';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const { Pool } = pg;
 
 const connection = new Pool({
