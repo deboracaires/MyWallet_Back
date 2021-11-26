@@ -13,6 +13,8 @@ app.post('/sign-in', userController.signIn);
 app.post('/sign-up', userController.signUp);
 
 // authenticated routes
+app.get('/financial-events-history', auth, financialEventsController.getFinancialHistory);
+app.get('/financial-events-sum', auth, financialEventsController.getFinancialSum);
 
 app.post('/financial-events', auth, financialEventsController.postFinancialEvent);
 

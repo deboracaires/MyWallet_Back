@@ -1,3 +1,5 @@
+import * as financialEventsRepository from '../repositories/financialEventsRepository.js';
+
 async function verifyTypeValue(type, value) {
   if (!['INCOME', 'OUTCOME'].includes(type)) {
     return false;
@@ -9,6 +11,13 @@ async function verifyTypeValue(type, value) {
   return true;
 }
 
+async function doSumHistory(user) {
+  const events = await financialEventsRepository.select(user);
+  const sum = events.rows.reduce((total, event) => (event.type === 'INCOME' ? total + event.value : total - event.value), 0);
+  return sum;
+}
+
 export {
   verifyTypeValue,
+  doSumHistory,
 };
