@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import bcrypt from 'bcrypt';
 import faker from 'faker';
-import jwt from 'jsonwebtoken';
+import { v4 as uuid } from 'uuid';
 
 import connection from '../../src/database/database.js';
 
@@ -25,9 +25,11 @@ export async function createUser({ name, email, password } = {}) {
 export async function createToken({ user } = {}) {
   user = user || await createUser();
 
-  const token = jwt.sign({
-    id: user.id,
-  }, `${process.env.JWT_SECRET}`);
+  const token = uuid();
+
+  await connection.query(`
+        INSERT INTO "sessions" ("userId", token) VALUES ($1, $2) RETURNING * 
+    `, [user.id, token]);
 
   return {
     user,
