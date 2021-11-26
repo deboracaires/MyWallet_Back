@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import auth from './middlewares/auth.js';
+import { auth } from './middlewares/auth.js';
 import * as userController from './controllers/userController.js';
 import * as financialEventsController from './controllers/financialEventsController.js';
 

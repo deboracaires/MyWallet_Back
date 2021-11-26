@@ -1,10 +1,13 @@
 /* eslint-disable consistent-return */
 import * as financialEventsService from '../services/financialEventService.js';
 import * as financialEventsRepository from '../repositories/financialEventsRepository.js';
+import * as sessionRepository from '../repositories/sessionRepository.js';
 
 async function postFinancialEvent(req, res) {
   try {
-    const { user } = res.locals;
+    const authorization = req.headers.authorization || '';
+    const token = authorization.split('Bearer ')[1];
+    const { userId } = await sessionRepository.select(token);
 
     const { value, type, description } = req.body;
 
@@ -17,7 +20,7 @@ async function postFinancialEvent(req, res) {
     if (!typeValue) {
       return res.sendStatus(400);
     }
-    await financialEventsRepository.create(user, value, type, description);
+    await financialEventsRepository.create(userId, value, type, description);
     return res.sendStatus(201);
   } catch (err) {
     res.sendStatus(500);
@@ -26,9 +29,11 @@ async function postFinancialEvent(req, res) {
 
 async function getFinancialHistory(req, res) {
   try {
-    const { user } = res.locals;
+    const authorization = req.headers.authorization || '';
+    const token = authorization.split('Bearer ')[1];
+    const { userId } = await sessionRepository.select(token);
 
-    const history = await financialEventsRepository.select(user);
+    const history = await financialEventsRepository.select(userId);
 
     res.send(history.rows);
   } catch (err) {
@@ -37,9 +42,11 @@ async function getFinancialHistory(req, res) {
 }
 
 async function getFinancialSum(req, res) {
-  const { user } = res.locals;
+  const authorization = req.headers.authorization || '';
+  const token = authorization.split('Bearer ')[1];
+  const { userId } = await sessionRepository.select(token);
 
-  const sum = await financialEventsService.doSumHistory(user);
+  const sum = await financialEventsService.doSumHistory(userId);
 
   return res.send({ sum });
 }
