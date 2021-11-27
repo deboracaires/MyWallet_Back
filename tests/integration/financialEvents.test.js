@@ -4,6 +4,7 @@ import '../../src/setup.js';
 import supertest from 'supertest';
 import faker from 'faker';
 
+import dayjs from 'dayjs';
 import { createToken } from '../factories/userFactory.js';
 import { createFinancialEvent } from '../factories/financialEventFactory.js';
 import { clearDatabase, closeConnection } from '../utils/database.js';
@@ -27,6 +28,7 @@ describe('POST /financial-events', () => {
       value: value || ((Math.random() * 1000000000) << 0),
       type: type || ['INCOME', 'OUTCOME'][((Math.random() * 2) << 0)],
       description: description || faker.lorem.words(6),
+      date: dayjs().format('DD/MM/YYYY'),
     };
   }
   it('should answer with status 401 when no token is given', async () => {
